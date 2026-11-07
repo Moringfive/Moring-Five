@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f4ed">
+<title>Morning Five</title>
+<style>
+:root {
+  --bg:#f6f4ed;
+  --card:#fffefa;
+  --green:#54745f;
+  --dark:#26392d;
+  --muted:#788078;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--dark);
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+  padding:24px 16px;
+}
+main {
+  max-width:480px;
+  margin:auto;
+}
+header {
+  text-align:center;
+  padding:20px 0 26px;
+}
+.logo {
+  font-family:Georgia,serif;
+  font-size:36px;
+  letter-spacing:-1.5px;
+  font-weight:bold;
+}
+.tagline { color:var(--muted); margin-top:8px; }
+.card {
+  background:var(--card);
+  border-radius:24px;
+  padding:25px;
+  box-shadow:0 8px 35px #26392d0c;
+}
+.sun {
+  height:150px;
+  border-radius:18px;
+  background:linear-gradient(145deg,#e7d6b5,#f3e8d4 55%,#dce4d5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:66px;
+  margin-bottom:24px;
+}
+h1 { font: bold 29px Georgia,serif; margin:8px 0; }
+p { line-height:1.55; color:var(--muted); }
+button {
+  border:0;
+  border-radius:30px;
+  padding:15px 20px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.primary {
+  width:100%;
+  background:var(--green);
+  color:white;
+  margin-top:18px;
+}
+.secondary {
+  background:#edf0e9;
+  color:var(--dark);
+}
+.controls {
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+}
+.controls button { flex:1; }
+.progress {
+  height:7px;
+  border-radius:10px;
+  background:#e9e9df;
+  overflow:hidden;
+  margin:15px 0 22px;
+}
+.bar {
+  height:100%;
+  width:0;
+  background:var(--green);
+  transition:width .3s;
+}
+.timer {
+  font-size:54px;
+  font-weight:300;
+  letter-spacing:-2px;
+  text-align:center;
+  margin:12px 0;
+  font-variant-numeric:tabular-nums;
+}
+.exercise-icon {
+  font-size:76px;
+  text-align:center;
+  padding:22px;
+}
+.center { text-align:center; }
+.small { font-size:13px; color:var(--muted); }
+.hidden { display:none; }
+footer {
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  padding:22px 8px;
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="logo">morning five.</div>
+  <div class="tagline">A little stretch. A better start.</div>
+</header>
+
+<section class="card" id="home">
+  <div class="sun">☀️</div>
+  <div class="center">
+    <div class="small">YOUR DAILY MORNING ROUTINE</div>
+    <h1>Good morning.</h1>
+    <p>Take five minutes for yourself.<br>
+    Five gentle stretches to start your day.</p>
+    <p><strong>5 minutes · 5 stretches · Your own pace</strong></p>
+  </div>
+  <button class="primary" onclick="startRoutine()">
+    Start my morning →
+  </button>
+  <p class="center small" id="record">Your first morning starts today.</p>
+</section>
+
+<section class="card hidden" id="routine">
+  <div class="small" id="stepLabel">STRETCH 1 OF 5</div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="exercise-icon" id="picture">🙆</div>
+  <div class="center">
+    <h1 id="name">Shoulder rolls</h1>
+    <p id="instruction"></p>
+    <div class="timer" id="timer">01:00</div>
+    <div class="small" id="status">READY WHEN YOU ARE</div>
+  </div>
+  <button class="primary" id="pause" onclick="togglePause()">
+    Start timer
+  </button>
+  <div class="controls">
+    <button class="secondary" onclick="previous()">← Back</button>
+    <button class="secondary" onclick="next()">Skip →</button>
+  </div>
+  <p class="center small">
+    Stop if you feel pain or dizziness. Move gently.
+  </p>
+</section>
+
+<section class="card hidden center" id="complete">
+  <div class="sun">🌅</div>
+  <h1>Beautiful work.</h1>
+  <p>You made time for yourself this morning.</p>
+  <h1 id="total">1</h1>
+  <div class="small">COMPLETED MORNING ROUTINES</div>
+  <button class="primary" onclick="showHome()">
+    Back to home
+  </button>
+</section>
+
+<footer>
+  MORNING FIVE · VERSION 0.1<br>
+  Gentle movement, at your own pace.
+</footer>
+</main>
+
+<script>
+const exercises = [
+  {
+    name:"Shoulder rolls",
+    seconds:60,
+    icon:"🙆",
+    text:"Relax your arms. Slowly roll your shoulders backwards, then forwards. Keep your breathing comfortable."
+  },
+  {
+    name:"Gentle neck turns",
+    seconds:60,
+    icon:"🙂",
+    text:"Slowly turn your head to look left, then right. Keep the movement small and comfortable. Don't force it."
+  },
+  {
+    name:"Standing side stretch",
+    seconds:60,
+    icon:"🙋",
+    text:"Reach one arm overhead and gently lean to the opposite side. Change sides halfway through."
+  },
+  {
+    name:"Gentle forward fold",
+    seconds:60,
+    icon:"🧘",
+    text:"Soften your knees. Hinge gently at your hips and let your arms relax. Only go as far as feels comfortable."
+  },
+  {
+    name:"Full-body reach",
+    seconds:60,
+    icon:"🌞",
+    text:"Stand tall. Reach both arms upwards, stretch gently, then relax. Finish with a few calm breaths."
+  }
+];
+
+let current = 0;
+let remaining = 60;
+let running = false;
+let interval = null;
+
+const $ = id => document.getElementById(id);
+
+function show(id) {
+  ["home","routine","complete"].forEach(
+    section => $(section).classList.add("hidden")
+  );
+  $(id).classList.remove("hidden");
+}
+
+function startRoutine() {
+  current = 0;
+  loadExercise();
+  show("routine");
+}
+
+function loadExercise() {
+  clearInterval(interval);
+  running = false;
+  remaining = exercises[current].seconds;
+
+  $("name").textContent = exercises[current].name;
+  $("picture").textContent = exercises[current].icon;
+  $("instruction").textContent = exercises[current].text;
+  $("stepLabel").textContent =
+    `STRETCH ${current+1} OF ${exercises.length}`;
+  $("bar").style.width =
+    `${(current / exercises.length)*100}%`;
+  $("pause").textContent = "Start timer";
+  $("status").textContent = "READY WHEN YOU ARE";
+  updateTimer();
+}
+
+function updateTimer() {
+  const mins = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+  $("timer").textContent =
+    `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+}
+
+function togglePause() {
+  if (running) {
+    clearInterval(interval);
+    running = false;
+    $("pause").textContent = "Resume";
+    $("status").textContent = "PAUSED";
+    return;
+  }
+
+  running = true;
+  $("pause").textContent = "Pause";
+  $("status").textContent = "TAKE YOUR TIME";
+
+  interval = setInterval(() => {
+    remaining--;
+    updateTimer();
+
+    const completed =
+      current + (1 - remaining / exercises[current].seconds);
+    $("bar").style.width =
+      `${(completed / exercises.length)*100}%`;
+
+    if (remaining <= 0) {
+      clearInterval(interval);
+      running = false;
+      if (current === exercises.length - 1) {
+        finishRoutine();
+      } else {
+        current++;
+        loadExercise();
+      }
+    }
+  }, 1000);
+}
+
+function next() {
+  if (current === exercises.length - 1) {
+    finishRoutine();
+    return;
+  }
+  current++;
+  loadExercise();
+}
+
+function previous() {
+  if (current > 0) {
+    current--;
+    loadExercise();
+  }
+}
+
+function finishRoutine() {
+  clearInterval(interval);
+  running = false;
+
+  const count = Number(
+    localStorage.getItem("morningFiveCount") || 0
+  ) + 1;
+
+  localStorage.setItem("morningFiveCount", count);
+  $("total").textContent = count;
+  show("complete");
+}
+
+function showHome() {
+  const count = Number(
+    localStorage.getItem("morningFiveCount") || 0
+  );
+  $("record").textContent =
+    count ? `${count} morning routines completed.`
+          : "Your first morning starts today.";
+  show("home");
+}
+
+showHome();
+</script>
+</body>
+</html>
